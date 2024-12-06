@@ -16,7 +16,11 @@ def save_file(url, directory, session):
         file_path = os.path.join(directory, parsed_url.path.lstrip('/'))
     
     # Criar diretórios, se necessário
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    except FileExistsError:
+        # Diretório já existe
+        pass
     
     # Salvar o conteúdo no arquivo
     with open(file_path, 'wb') as file:
