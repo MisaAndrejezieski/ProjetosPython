@@ -1,57 +1,17 @@
 import os
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
+import wget
 import tkinter as tk
 from tkinter import messagebox
 
-def save_file(url, directory, session):
-    response = session.get(url)
-    parsed_url = urlparse(url)
-    
-    # Definir o caminho do arquivo com base na URL
-    if parsed_url.path == "" or parsed_url.path == "/":
-        file_path = os.path.join(directory, 'index.html')
-    else:
-        file_path = os.path.join(directory, parsed_url.path.lstrip('/'))
-    
-    # Verificar e criar diretórios necessários
-    dir_name = os.path.dirname(file_path)
-    if not os.path.exists(dir_name):
-        try:
-            os.makedirs(dir_name)
-        except FileExistsError:
-            pass
-    
-    # Salvar o conteúdo no arquivo
-    with open(file_path, 'wb') as file:
-        file.write(response.content)
-
 def download_site(site, directory='BaixarSite'):
-    session = requests.Session()
-    response = session.get(site)
-    soup = BeautifulSoup(response.content, 'html.parser')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     
-    base_url = "{0.scheme}://{0.netloc}".format(urlparse(site))
-    os.makedirs(directory, exist_ok=True)
-
-    # Baixar a página principal
-    save_file(site, directory, session)
-    
-    # Baixar todos os arquivos CSS, JS e imagens
-    tags = soup.find_all(['link', 'script', 'img'])
-    for tag in tags:
-        if tag.name == 'link' and 'stylesheet' in tag.get('rel', []):
-            file_url = urljoin(base_url, tag['href'])
-            save_file(file_url, directory, session)
-        elif tag.name == 'script' and tag.get('src'):
-            file_url = urljoin(base_url, tag['src'])
-            save_file(file_url, directory, session)
-        elif tag.name == 'img' and tag.get('src'):
-            file_url = urljoin(base_url, tag['src'])
-            save_file(file_url, directory, session)
-    
-    messagebox.showinfo("Sucesso", "Download completo!")
+    try:
+        file_name = wget.download(site, out=directory)
+        messagebox.showinfo("Sucesso", f"Download completo! Arquivo salvo em: {file_name}")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Erro ao baixar o site: {e}")
 
 def on_download_button_click():
     site = url_entry.get()
