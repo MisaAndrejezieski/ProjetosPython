@@ -1,22 +1,19 @@
-import os
-import wget
+import subprocess
 import tkinter as tk
 from tkinter import messagebox
 
 def download_site(site, directory='BaixarSite'):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    
+    if not site.startswith('http'):
+        site = 'http://' + site
+    command = f'wget --mirror --convert-links --adjust-extension --page-requisites --no-parent {site} -P {directory}'
     try:
-        file_name = wget.download(site, out=directory)
-        messagebox.showinfo("Sucesso", f"Download completo! Arquivo salvo em: {file_name}")
-    except Exception as e:
+        subprocess.run(command, shell=True, check=True)
+        messagebox.showinfo("Sucesso", f"Download completo! Site salvo em: {directory}")
+    except subprocess.CalledProcessError as e:
         messagebox.showerror("Erro", f"Erro ao baixar o site: {e}")
 
 def on_download_button_click():
     site = url_entry.get()
-    if not site.startswith('http'):
-        site = 'http://' + site
     download_site(site)
 
 # Criar a janela principal
