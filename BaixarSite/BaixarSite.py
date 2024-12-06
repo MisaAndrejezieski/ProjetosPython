@@ -8,12 +8,17 @@ from tkinter import messagebox
 def save_file(url, directory, session):
     response = session.get(url)
     parsed_url = urlparse(url)
-    if parsed_url.path == "":
+    
+    # Definir o caminho do arquivo com base na URL
+    if parsed_url.path == "" or parsed_url.path == "/":
         file_path = os.path.join(directory, 'index.html')
     else:
         file_path = os.path.join(directory, parsed_url.path.lstrip('/'))
-
+    
+    # Criar diretórios, se necessário
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    
+    # Salvar o conteúdo no arquivo
     with open(file_path, 'wb') as file:
         file.write(response.content)
 
